@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import BookForm from './components/BookForm';
+import BookList from './components/BookList';
 
-function App() {
+const App = () => {
+  const [books, setBooks] = useState([]);
+
+  const fetchBooks = async () => {
+    try {
+      const response = await axios.get('https://book-backend-yh1g.onrender.com/books');
+      setBooks(response.data);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const handleBookAdded = (newBook) => {
+    setBooks((prevBooks) => [...prevBooks, newBook]);
+  };
+
+  const handleBookDeleted = (id) => {
+    setBooks((prevBooks) => prevBooks.filter((book) => book._id !== id));
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4 ">Book Listing</h1>
+      <BookForm onBookAdded={handleBookAdded} />
+      <BookList books={books} onBookDeleted={handleBookDeleted} />
     </div>
   );
-}
+};
 
 export default App;
